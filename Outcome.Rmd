@@ -1,0 +1,192 @@
+---
+title: "Outcome"
+author: "SOSSOU Osséni"
+date: "2026-04-16"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# Extraire le code R du fichier .Rmd vers un fichier .R
+knitr::purl("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/Function_of_simulation.Rmd", 
+            output = "D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+
+# Puis sourcer le fichier .R généré
+source("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+```
+
+```{r}
+KLD_divergence_without_zero <- readRDS("KLD_divergence_without_zero.rds")
+kernel_divergence_without_zero <- readRDS("kernel_divergence_without_zero.rds")
+kNN_divergence_without_zero <- readRDS("kNN_divergence_without_zero.rds")
+
+KLD_divergence_with_zero <- readRDS("KLD_divergence_with_zero.rds")
+kernel_divergence_with_zero <- readRDS("kernel_divergence_with_zero.rds")
+kNN_divergence_with_zero <- readRDS("kNN_divergence_with_zero.rds")
+```
+
+```{r}
+KLD_divergence_without_zero_seg <- readRDS("KLD_divergence_without_zero_seg.rds")
+kernel_divergence_without_zero_seg <- readRDS("kernel_divergence_without_zero_seg.rds")
+kNN_divergence_without_zero_seg <- readRDS("kNN_divergence_without_zero_seg.rds")
+
+KLD_divergence_with_zero_seg <- readRDS("KLD_divergence_with_zero_seg.rds")
+kernel_divergence_with_zero_seg <- readRDS("kernel_divergence_with_zero_seg.rds")
+kNN_divergence_with_zero_seg <- readRDS("kNN_divergence_with_zero_seg.rds")
+```
+
+#Calculation of ratios
+
+##For the polynomial case
+
+```{r}
+kNN_ratio_without_zero <- list()
+
+for (r in 1:3) {
+  kNN_ratio_without_zero[[r]] <- divergnece_ratio(kNN_divergence_without_zero[[r]], KLD_divergence_without_zero[[r]])
+}
+```
+
+```{r}
+kNN_ratio_with_zero <- list()
+
+for (r in 1:3) {
+  kNN_ratio_with_zero[[r]] <- divergnece_ratio(kNN_divergence_with_zero[[r]], KLD_divergence_with_zero[[r]])
+}
+```
+
+```{r}
+kernel_ratio_without_zero <- list()
+
+for (r in 1:3) {
+  kernel_ratio_without_zero[[r]] <- divergnece_ratio(kernel_divergence_without_zero[[r]], KLD_divergence_without_zero[[r]])
+}
+```
+
+```{r}
+kernel_ratio_with_zero <- list()
+
+for (r in 1:3) {
+  kernel_ratio_with_zero[[r]] <- divergnece_ratio(kernel_divergence_with_zero[[r]], KLD_divergence_with_zero[[r]])
+}
+```
+
+#For the piecewise function case
+
+```{r}
+kernel_ratio_with_zero_seg <- divergnece_ratio(kernel_divergence_with_zero_seg, KLD_divergence_with_zero_seg)
+
+kernel_ratio_without_zero_seg <- divergnece_ratio(kernel_divergence_without_zero_seg, KLD_divergence_without_zero_seg)
+
+kNN_ratio_with_zero_seg <- divergnece_ratio(kNN_divergence_with_zero_seg, KLD_divergence_with_zero_seg)
+
+kNN_ratio_without_zero_seg <- divergnece_ratio(kNN_divergence_without_zero_seg, KLD_divergence_without_zero_seg)
+```
+
+#Visualization of Ratios
+
+```{r}
+picture_kernel_without_zero <- list()
+
+for (p in 1:3) {
+  type <- sprintf(" v = %d\n", p)
+  picture_kernel_without_zero[[p]] <- plot_divergence_function(
+  kernel_ratio_without_zero[[p]],
+  type
+)
+}
+
+picture_kernel_without_zero_seg <- plot_divergence_function(kernel_ratio_without_zero_seg,
+  "Segmented"
+)
+
+kernel_without <- grid.arrange(picture_kernel_without_zero[[1]], picture_kernel_without_zero[[2]], picture_kernel_without_zero[[3]], picture_kernel_without_zero_seg,
+             ncol = 4,
+             #widths = c(1, 1, 1, 1),      # Largeurs égales
+             #heights = c(1, 1, 1, 1),    # Hauteurs égales
+             top = "Kernel regression"
+             )
+
+picture_kernel_with_zero <- list()
+
+for (p in 1:3) {
+  type <- sprintf(" v = %d \n", p)
+  picture_kernel_with_zero[[p]] <- plot_divergence_function(
+  kernel_ratio_with_zero[[p]],
+  type
+)
+}
+
+picture_kernel_with_zero_seg <- plot_divergence_function(kernel_ratio_with_zero_seg, "Segmented" )
+
+kernel_with <- grid.arrange(picture_kernel_with_zero[[1]], picture_kernel_with_zero[[2]], picture_kernel_with_zero[[3]], picture_kernel_with_zero_seg,
+             ncol = 4,
+             #widths = c(1, 1, 1, 1),      # Largeurs égales
+             #heights = c(1, 1, 1, 1),    # Hauteurs égales
+             top = "Kernel regression"
+             )
+
+```
+
+```{r}
+picture_kNN_without_zero <- list()
+
+for (p in 1:3) {
+  type <- sprintf(" v = %d\n", p)
+  picture_kNN_without_zero[[p]] <- plot_divergence_function(
+  kNN_ratio_without_zero[[p]],
+  type
+)
+}
+
+picture_kNN_without_zero_seg <- plot_divergence_function(kNN_ratio_without_zero_seg, "Segmented" )
+
+kNN_without <- grid.arrange(picture_kNN_without_zero[[1]], picture_kNN_without_zero[[2]], picture_kNN_without_zero[[3]], picture_kNN_without_zero_seg, 
+             ncol = 4,
+             #widths = c(1, 1, 1, 1),      # Largeurs égales
+             #heights = c(1, 1, 1, 1),    # Hauteurs égales
+             top = "kNN regression"
+             )
+
+picture_kNN_with_zero <- list()
+
+for (p in 1:3) {
+  type <- sprintf(" v = %d\n", p)
+  picture_kNN_with_zero[[p]] <- plot_divergence_function(
+  kNN_ratio_with_zero[[p]],
+  type
+)
+}
+
+picture_kNN_with_zero_seg <- plot_divergence_function(kNN_ratio_with_zero_seg, "Segmented" )
+
+kNN_with <- grid.arrange(picture_kNN_with_zero[[1]], picture_kNN_with_zero[[2]], picture_kNN_with_zero[[3]], picture_kNN_with_zero_seg, 
+             ncol = 4,
+             #widths = c(1, 1, 1, 1),      # Largeurs égales
+             #heights = c(1, 1, 1, 1),    # Hauteurs égales
+             top = "kNN regression"
+             )
+```
+
+```{r}
+With_zero <- grid.arrange(kernel_with, kNN_with,
+             ncol = 1,
+             bottom = "With zero"
+             )
+
+ggsave("With_zero.jpg", plot = With_zero, width = 20, height = 10, dpi = 300)
+```
+
+```{r}
+Without_zero <- grid.arrange(kernel_without, kNN_without,
+             ncol = 1,
+             bottom = "Without zero"
+             )
+
+ggsave("Without_zero.jpg", plot = Without_zero, width = 20, height = 10, dpi = 300)
+```
+
+

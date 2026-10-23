@@ -1,0 +1,194 @@
+---
+title: "Main simulation"
+author: "SOSSOU Osséni"
+date: "2026-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# Extraire le code R du fichier .Rmd vers un fichier .R
+knitr::purl("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/Function_of_simulation.Rmd", 
+            output = "D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+
+# Puis sourcer le fichier .R généré
+source("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+```
+
+DATA SIMULATION
+
+```{r, warning=FALSE, message=FALSE}
+#Paramètres de la simulation
+
+# Domaine
+I <- c(0, 1)
+t_grid <- seq(I[1], I[2], length.out = 200)
+
+# Taille de l'échantillons
+N <- 1000
+
+# dimension de l'espace des predicteur
+p <- 3
+# Nombre de composante
+D <- 3
+
+# Empirical study of convergence.
+sample_sizes <- seq(100,500,50) 
+n_replications <- 1
+
+alphas = c( 0.1, 0.3, 0.4, 0.5, 0.7, 0.9, 1)
+
+order_paras0 = c(10, 20, 25, 30, 35, 40, 45, 50)
+
+order_paras1 = seq(0.1,1,0.1)
+
+X_new <- generat_X(p, n = 1, seg = FALSE)
+X_new_seg <- runif(1, min = -1, max = 1)
+
+Ds <- c(3, 5, 7, 10)
+
+zero_prop <- 0.2
+
+Vs <- c(1,2,3)
+
+Base <- create_bspline_basis(t_grid, n_basis = 8, degree = 3)
+```
+
+#For the polynomial case
+
+```{r, warning=FALSE}
+set.seed(123)
+
+KLD_divergence_without_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_kld_comp(sample_sizes, n_replications, X_new, Ds, p, zero_prop = 0, Vs[l], seg = FALSE)
+  KLD_divergence_without_zero[[l]] <- div
+}
+
+saveRDS(KLD_divergence_without_zero, "KLD_divergence_without_zero.rds")
+```
+
+
+```{r, warning=FALSE}
+set.seed(123)
+
+KLD_divergence_with_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_kld_comp(sample_sizes, n_replications, X_new, Ds, p, zero_prop = zero_prop, Vs[l], seg = FALSE)
+  KLD_divergence_with_zero[[l]] <- div
+}
+
+saveRDS(KLD_divergence_with_zero, "KLD_divergence_with_zero.rds")
+```
+
+
+```{r, warning=FALSE}
+set.seed(123)
+
+kNN_divergence_without_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_comp(sample_sizes, n_replications, X_new, alphas, order_paras0, Ds, p, mode = 0, zero_prop = 0, Vs[l], seg = FALSE)
+  kNN_divergence_without_zero[[l]] <- div
+}
+
+saveRDS(kNN_divergence_without_zero, "kNN_divergence_without_zero.rds")
+```
+
+```{r, warning=FALSE}
+set.seed(123)
+
+kNN_divergence_with_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_comp(sample_sizes, n_replications, X_new, alphas, order_paras0, Ds, p, mode = 0, zero_prop = zero_prop, Vs[l], seg = FALSE)
+  kNN_divergence_with_zero[[l]] <- div
+}
+
+saveRDS(kNN_divergence_with_zero, "kNN_divergence_with_zero.rds")
+```
+
+
+```{r, warning=FALSE}
+set.seed(123)
+
+kernel_divergence_without_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_comp(sample_sizes, n_replications, X_new, alphas, order_paras1, Ds, p, mode = 1, zero_prop = 0, Vs[l], seg = FALSE)
+  kernel_divergence_without_zero[[l]] <- div
+}
+
+saveRDS(kernel_divergence_without_zero, "kernel_divergence_without_zero.rds")
+```
+
+```{r, warning=FALSE}
+set.seed(123)
+
+kernel_divergence_with_zero <- list()
+
+for (l in 1:length(Vs)) {
+  cat(sprintf("\n Pour degree %d \n \n", Vs[l]))
+  
+  div <- divergence_comp(sample_sizes, n_replications, X_new, alphas, order_paras1, Ds, p, mode = 1, zero_prop = zero_prop, Vs[l], seg = FALSE)
+  kernel_divergence_with_zero[[l]] <- div
+}
+
+saveRDS(kernel_divergence_with_zero, "kernel_divergence_with_zero.rds")
+```
+
+#For the piecewise function case
+
+```{r}
+kNN_divergence_with_zero_seg <- divergence_comp(sample_sizes, n_replications, X_new_seg, alphas, order_paras0, Ds, p, mode = 0, zero_prop = zero_prop, v=1, seg = TRUE)
+
+saveRDS(kNN_divergence_with_zero_seg, "kNN_divergence_with_zero_seg.rds")
+```
+
+```{r}
+kNN_divergence_without_zero_seg <- divergence_comp(sample_sizes, n_replications, X_new_seg, alphas, order_paras0, Ds, p, mode = 0, zero_prop = 0, v=1, seg = TRUE)
+
+saveRDS(kNN_divergence_without_zero_seg, "kNN_divergence_without_zero_seg.rds")
+```
+
+```{r}
+kernel_divergence_with_zero_seg <- divergence_comp(sample_sizes, n_replications, X_new_seg, alphas, order_paras1, Ds, p, mode = 1, zero_prop = zero_prop, v=1, seg = TRUE)
+
+saveRDS(kernel_divergence_with_zero_seg, "kernel_divergence_with_zero_seg.rds")
+```
+
+```{r}
+kernel_divergence_without_zero_seg <- divergence_comp(sample_sizes, n_replications, X_new_seg, alphas, order_paras1, Ds, p, mode = 1, zero_prop = 0, v=1, seg = TRUE)
+
+saveRDS(kernel_divergence_without_zero_seg, "kernel_divergence_without_zero_seg.rds")
+```
+
+```{r}
+KLD_divergence_with_zero_seg <- divergence_kld_comp(sample_sizes, n_replications, X_new_seg, Ds, p, zero_prop = zero_prop, Vs[l], seg = TRUE)
+
+saveRDS(KLD_divergence_with_zero_seg, "KLD_divergence_with_zero_seg.rds")
+```
+
+```{r}
+KLD_divergence_without_zero_seg <- divergence_kld_comp(sample_sizes, n_replications, X_new_seg, Ds, p, zero_prop = 0, Vs[l], seg = TRUE)
+
+saveRDS(KLD_divergence_without_zero_seg, "KLD_divergence_without_zero_seg.rds")
+```
+
+
+
