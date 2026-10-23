@@ -12,10 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, warning=FALSE, message=FALSE}
 # Extraire le code R du fichier .Rmd vers un fichier .R
 knitr::purl("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/Function_of_simulation.Rmd", 
-            output = "D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+            output = "D:/Mes_Dossiers/These/Mon_Travail/Projets_Simulation/Simulation_2/fonctions_extraites.R")
 
 # Puis sourcer le fichier .R généré
-source("D:/Mes_Dossiers/These/Mon_Travail/Codes_Simulation/fonctions_extraites.R")
+source("D:/Mes_Dossiers/These/Mon_Travail/Projets_Simulation/Simulation_2/fonctions_extraites.R")
 ```
 
 DATA SIMULATION
